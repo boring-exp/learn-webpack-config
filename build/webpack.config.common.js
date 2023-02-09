@@ -3,14 +3,14 @@ const { VueLoaderPlugin } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { DefinePlugin } = require('webpack')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const WebPackBar = require('webpackbar')
 
 module.exports = {
     entry: './src/main.js',
     output: {
-        path: path.join(__dirname, 'dist'),
+        path: path.join(__dirname, '../dist'),
         filename: 'js/[name].[contenthash:8].js'
     },
-    mode: 'development',
     module: {
         rules: [
             // 处理SFC
@@ -65,6 +65,7 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
+        new WebPackBar(),
         new HtmlWebpackPlugin({
             template: 'index.html'
         }),
@@ -102,5 +103,6 @@ module.exports = {
                 }
             }
         },
-    }
+
+    },
 }
