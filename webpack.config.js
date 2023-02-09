@@ -1,7 +1,8 @@
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const {DefinePlugin} = require('webpack')
+const { DefinePlugin } = require('webpack')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     entry: './src/main.js',
@@ -9,7 +10,7 @@ module.exports = {
         path: path.join(__dirname, 'dist'),
         filename: 'js/[name].[contenthash:8].js'
     },
-    mode: 'production',
+    mode: 'development',
     module: {
         rules: [
             // 处理SFC
@@ -21,12 +22,12 @@ module.exports = {
             {
                 test: /\.css$/i,
                 // loader的处理顺序是从后往前
-                use: ["style-loader", "css-loader"],
+                use: [MiniCssExtractPlugin.loader, "css-loader"],
             },
             // 处理scss
             {
                 test: /\.s[ac]ss$/i,
-                use: ["style-loader", "css-loader", 'sass-loader'],
+                use: [MiniCssExtractPlugin.loader, "css-loader", 'sass-loader'],
             },
             // 处理图片
             {
@@ -70,7 +71,36 @@ module.exports = {
         new DefinePlugin({
             __VUE_OPTIONS_API__: JSON.stringify(false),
             __VUE_PROD_DEVTOOLS__: JSON.stringify(false)
-        })
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'css/[name].[hash:8].css'
+        }),
     ],
-    devtool: 'source-map'
+    devtool: 'source-map',
+    // 外部依赖, 1.将vue引入替换成从window对象上获取，2.在index.html中写上cnd链接
+    // lodash工具库，axios，elementui
+    externalsType: 'window',
+    externals: {
+        vue: 'Vue'
+    },
+    optimization: {
+        // 自动分包
+        splitChunks: {
+            cacheGroups: {
+                defaultVendors: {
+                    name: 'chunk-vendors',
+                    test: /[\\/]node_modules[\\/]/,
+                    priority: -10,
+                    chunks: 'initial'
+                },
+                common: {
+                    name: 'chunk-common',
+                    minChunks: 2,
+                    priority: -20,
+                    chunks: 'initial',
+                    reuseExistingChunk: true
+                }
+            }
+        },
+    }
 }
